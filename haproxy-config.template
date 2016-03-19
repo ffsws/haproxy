@@ -173,6 +173,7 @@ frontend fe_no_sni
 ##########################################################################
 
 backend letsencrypt
+  mode http
   balance roundrobin
   server letsencrypt1 185.72.236.231:80 check
   server letsencrypt2 185.72.236.232:80 check
