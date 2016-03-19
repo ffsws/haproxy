@@ -63,9 +63,11 @@ frontend public
   tcp-request inspect-delay 5s
   tcp-request content accept if HTTP
 
+  use_backend letsencrypt if { path_beg /.well-known/acme-challenge/ }
+
   # check if we need to redirect/force using https.
   acl secure_redirect base,map_beg(/var/lib/haproxy/conf/os_edge_http_redirect.map) -m found
-  redirect scheme https if secure_redirect
+  redirect scheme https if secure_redirect !{ path_beg /.well-known/acme-challenge/ }
 
   # Check if it is an edge route exposed insecurely.
   acl edge_http_expose base,map_beg(/var/lib/haproxy/conf/os_edge_http_expose.map) -m found
@@ -169,6 +171,11 @@ frontend fe_no_sni
 ##########################################################################
 # END TLS NO SNI
 ##########################################################################
+
+backend letsencrypt
+  balance roundrobin
+  server letsencrypt1 185.72.236.231:80 check
+  server letsencrypt2 185.72.236.232:80 check
 
 backend openshift_default
   mode http
