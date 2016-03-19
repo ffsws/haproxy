@@ -63,11 +63,14 @@ frontend public
   tcp-request inspect-delay 5s
   tcp-request content accept if HTTP
 
-  use_backend letsencrypt if { path_beg /.well-known/acme-challenge/ }
+  acl path_letsencrypt_acme path_beg /.well-known/acme-challenge/
 
   # check if we need to redirect/force using https.
   acl secure_redirect base,map_beg(/var/lib/haproxy/conf/os_edge_http_redirect.map) -m found
-  redirect scheme https if secure_redirect !{ path_beg /.well-known/acme-challenge/ }
+  redirect scheme https if secure_redirect !path_letsencrypt_acme
+
+  http-request set-header Host letsencrypt-appuio-infra.app.appuio-beta.ch if path_letsencrypt_acme
+  use_backend letsencrypt if path_letsencrypt_acme
 
   # Check if it is an edge route exposed insecurely.
   acl edge_http_expose base,map_beg(/var/lib/haproxy/conf/os_edge_http_expose.map) -m found
