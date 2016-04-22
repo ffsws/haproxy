@@ -66,11 +66,13 @@ frontend public
   acl path_letsencrypt_acme path_beg /.well-known/acme-challenge/
   acl path_letsencrypt_acme path_beg /.well-known/letsencrypt
   http-request set-header X-Original-Host %[req.hdr(host)] if path_letsencrypt_acme
-  http-request set-header Host ${LETSENCRYPT_HOST} if path_letsencrypt_acme
+  http-request set-header Host %[env(LETSENCRYPT_HOST)] if path_letsencrypt_acme
 
   # check if we need to redirect/force using https.
   acl secure_redirect base,map_beg(/var/lib/haproxy/conf/os_edge_http_redirect.map) -m found
   redirect scheme https if secure_redirect !path_letsencrypt_acme
+
+  use_backend be_http_%[env(LETSENCRYPT_HOST),map_beg(/var/lib/haproxy/conf/os_http_be.map)] if path_letsencrypt_acme
 
   # Check if it is an edge route exposed insecurely.
   acl edge_http_expose base,map_beg(/var/lib/haproxy/conf/os_edge_http_expose.map) -m found
