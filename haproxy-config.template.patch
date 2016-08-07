@@ -1,12 +1,9 @@
---- haproxy-config.template.orig	2016-08-03 16:41:47.913387074 +0200
-+++ haproxy-config.template	2016-08-03 16:44:19.065561853 +0200
-@@ -63,9 +63,17 @@
+--- haproxy-config.template.orig	2016-07-04 19:41:59.378274681 +0200
++++ haproxy-config.template	2016-05-12 14:12:56.874518626 +0200
+@@ -63,9 +63,14 @@
    tcp-request inspect-delay 5s
    tcp-request content accept if HTTP
  
-+  # mitigate httpoxy vulnerability
-+  http-request del-header Proxy
-+
 +  acl path_letsencrypt path_beg /.well-known/acme-challenge/
 +  acl path_letsencrypt path_beg /.well-known/letsencrypt
 +
@@ -19,23 +16,3 @@
  
    # Check if it is an edge route exposed insecurely.
    acl edge_http_expose base,map_beg(/var/lib/haproxy/conf/os_edge_http_expose.map) -m found
-@@ -118,6 +126,9 @@
-   bind 127.0.0.1:10444 ssl no-sslv3 {{ if (len .DefaultCertificate) gt 0 }}crt {{.DefaultCertificate}}{{ else }}crt /var/lib/haproxy/conf/default_pub_keys.pem{{ end }} crt {{ $workingDir }}/certs accept-proxy
-   mode http
- 
-+  # mitigate httpoxy vulnerability
-+  http-request del-header Proxy
-+
-   # check re-encrypt backends first - from most specific to general path.
-   acl reencrypt base,map_beg(/var/lib/haproxy/conf/os_reencrypt.map) -m found
- 
-@@ -152,6 +163,9 @@
-   bind 127.0.0.1:10443 ssl no-sslv3 {{ if (len .DefaultCertificate) gt 0 }}crt {{.DefaultCertificate}}{{ else }}crt /var/lib/haproxy/conf/default_pub_keys.pem{{ end }} accept-proxy
-   mode http
- 
-+  # mitigate httpoxy vulnerability
-+  http-request del-header Proxy
-+
-   # check re-encrypt backends first - path or host based.
-   acl reencrypt base,map_beg(/var/lib/haproxy/conf/os_reencrypt.map) -m found
- 
