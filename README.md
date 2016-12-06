@@ -40,3 +40,7 @@ oc process -f https://raw.githubusercontent.com/appuio/haproxy/master/template.y
 ```
 
 Update the image tag to the desired version.
+
+## Versioning
+
+This repository follows the [SemVer](http://semver.org/) rules.
