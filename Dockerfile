@@ -1,4 +1,4 @@
-FROM docker.io/openshift/origin-haproxy-router:v1.3.1
+FROM docker.io/openshift/origin-haproxy-router
 
 ADD haproxy-config.template.patch /var/lib/haproxy/conf
 USER root
