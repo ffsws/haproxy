@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: ${APP_NAME}
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    creationTimestamp: null
+    labels:
+      app: ${APP_NAME}
+    name: ${APP_NAME}
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APP_NAME}:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        uri: ${SOURCE_REPOSITORY_URL}
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: ${APP_NAME}-upstream:latest
+      type: Docker
+    triggers:
+    - github:
+        secret: ${GITHUB_WEBHOOK_SECRET}
+      type: GitHub
+    - generic:
+        secret: ${GENERIC_WEBHOOK_SECRET}
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+  status:
+    lastVersion: 0
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: ${APP_NAME}
+    name: ${APP_NAME}
+  spec: {}
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    generation: 2
+    labels:
+      app: ${APP_NAME}
+    name: ${APP_NAME}-upstream
+  spec:
+    tags:
+    - from:
+        kind: DockerImage
+        name: ${FROM_IMAGE}
+      generation: 2
+      importPolicy: {}
+      name: latest
+  status:
+    dockerImageRepository: ""
+parameters:
+  - name: APP_NAME
+    description: Name of the app (used for labeling)
+    value: haproxy
+  - name: SOURCE_REPOSITORY_URL
+    description: The URL of the repository with your application source code
+    value: https://github.com/appuio/haproxy.git
+  - name: GITHUB_WEBHOOK_SECRET
+    description: A secret string used to configure the GitHub webhook
+    generate: expression
+    from: "[a-zA-Z0-9]{40}"
+  - name: GENERIC_WEBHOOK_SECRET
+    description: A secret string used to configure the Generic webhook
+    generate: expression
+    from: "[a-zA-Z0-9]{40}"
+  - name: FROM_IMAGE
+    description: Build haproxy FROM
+    value: "registry.access.redhat.com/openshift3/ose-haproxy-router"
+message: "The GitHub webhook secret is ${GITHUB_WEBHOOK_SECRET} and the generic ${GENERIC_WEBHOOK_SECRET}"
