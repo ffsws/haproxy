@@ -30,12 +30,6 @@ objects:
           name: ${APP_NAME}-upstream:latest
       type: Docker
     triggers:
-    - github:
-        secret: ${GITHUB_WEBHOOK_SECRET}
-      type: GitHub
-    - generic:
-        secret: ${GENERIC_WEBHOOK_SECRET}
-      type: Generic
     - type: ConfigChange
     - imageChange: {}
       type: ImageChange
@@ -77,15 +71,6 @@ parameters:
   - name: SOURCE_REPOSITORY_URL
     description: The URL of the repository with your application source code
     value: https://github.com/appuio/haproxy.git
-  - name: GITHUB_WEBHOOK_SECRET
-    description: A secret string used to configure the GitHub webhook
-    generate: expression
-    from: "[a-zA-Z0-9]{40}"
-  - name: GENERIC_WEBHOOK_SECRET
-    description: A secret string used to configure the Generic webhook
-    generate: expression
-    from: "[a-zA-Z0-9]{40}"
   - name: FROM_IMAGE
     description: Build haproxy FROM
     value: "registry.access.redhat.com/openshift3/ose-haproxy-router"
-message: "The GitHub webhook secret is ${GITHUB_WEBHOOK_SECRET} and the generic ${GENERIC_WEBHOOK_SECRET}"
