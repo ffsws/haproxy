@@ -1,0 +1,40 @@
+---
+- name: Create prestart script ConfigMap
+  openshift_resource:
+    namespace: default
+    type: configmap
+    name: prestart
+    patch:
+      kind: ConfigMap
+      metadata:
+        name: prestart
+      data:
+        prestart.sh: "{{ lookup('file', 'files/prestart.sh') }}"
+
+- name: Patch router deploymentconfig
+  openshift_resource:
+    namespace: default
+    type: deploymentconfig
+    name: "{{ item }}"
+    patch:
+      spec:
+        template:
+          spec:
+            containers:
+            - name: router
+              command:
+              - /usr/bin/prestart.sh
+              - /usr/bin/openshift-router
+              volumeMounts:
+              - name: prestart
+                mountPath: /usr/bin/prestart.sh
+                subPath: prestart.sh
+            volumes:
+            - name: prestart
+              configMap:
+                name: prestart
+                defaultMode: 0755
+                items:
+                - key: prestart.sh
+                  path: prestart.sh
+  with_items: "{{ routers }}"
