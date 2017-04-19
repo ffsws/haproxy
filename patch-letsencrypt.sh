@@ -8,7 +8,7 @@ sed -e 's|redirect scheme https if secure_redirect|\
 \
   redirect scheme https if secure_redirect !path_letsencrypt\
 \
-  use_backend be_http_%[env(LETSENCRYPT_HOST),map_beg(/var/lib/haproxy/conf/os_http_be.map)] if path_letsencrypt\
+  use_backend be_http:%[env(LETSENCRYPT_HOST),map_reg(/var/lib/haproxy/conf/os_http_be.map)] if path_letsencrypt\
 \
 |' <$1 >$1.tmp
 
