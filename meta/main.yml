@@ -11,4 +11,6 @@ galaxy_info:
     - 7
   categories:
   - cloud
-dependencies: []
+dependencies:
+- src: git+https://github.com/appuio/ansible-module-openshift.git
+  version: v1.0.0

@@ -2,8 +2,6 @@
 - name: Create prestart script ConfigMap
   openshift_resource:
     namespace: default
-    type: configmap
-    name: prestart
     patch:
       kind: ConfigMap
       metadata:
@@ -14,9 +12,10 @@
 - name: Patch router deploymentconfig
   openshift_resource:
     namespace: default
-    type: deploymentconfig
-    name: "{{ item }}"
     patch:
+      kind: DeploymentConfig
+      metadata:
+        name: "{{ item }}"
       spec:
         template:
           spec:
